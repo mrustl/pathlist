@@ -3,6 +3,8 @@
 S3method(.DollarNames,pathlist)
 export(pathlist)
 exportMethods("$")
+exportMethods(as.character)
+exportMethods(as.list)
 exportMethods(head)
 exportMethods(length)
 exportMethods(show)

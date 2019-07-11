@@ -13,7 +13,9 @@
 pathlist <- setClass("pathlist", slots = c(
   folders = "matrix",
   depths = "integer",
-  root = "character"
+  root = "character",
+  file = "function",
+  extension = "function"
 ))
 
 # S4 method initialize ---------------------------------------------------------
@@ -22,9 +24,7 @@ pathlist <- setClass("pathlist", slots = c(
 #' @importFrom kwb.file split_paths remove_common_root to_subdir_matrix
 #' @importFrom kwb.utils getAttribute
 #'
-setMethod("initialize", "pathlist", function(
-  .Object, paths
-)
+setMethod("initialize", "pathlist", function(.Object, paths)
 {
   stopifnot(is.character(paths))
 
@@ -35,7 +35,14 @@ setMethod("initialize", "pathlist", function(
   .Object@depths <- lengths(segments)
   .Object@folders <- kwb.file::to_subdir_matrix(segments)
   .Object@root <- kwb.utils::getAttribute(segments, "root")
-
+  .Object@file <- function() {
+    sapply(seq_along(.Object@depths), function(i) {
+      .Object@folders[i, .Object@depths[i]]
+    })
+  }
+  .Object@extension <- function() {
+    kwb.utils::fileExtension(.Object@file())
+  }
   .Object
 })
 
@@ -46,6 +53,7 @@ setMethod("initialize", "pathlist", function(
 #' @param x a pathlist object
 #' @param relative if \code{TRUE} (the default is \code{FALSE}) the root is
 #'   omitted from the paths
+#' @export
 #'
 setMethod("as.character", "pathlist", function(x, relative = FALSE)
 {
@@ -67,6 +75,26 @@ setMethod("as.character", "pathlist", function(x, relative = FALSE)
   }
 
   paths
+})
+
+# S4 method as.list ------------------------------------------------------------
+
+#' List Representation of a pathlist Object
+#'
+#' @param x a pathlist object
+#' @param relative if \code{TRUE} (the default is \code{FALSE}) the root is
+#'   omitted from the paths
+#' @export
+#'
+setMethod("as.list", "pathlist", function(x, relative = FALSE)
+{
+  root_segments <- if (! relative) {
+    kwb.file::split_paths(x@root, dbg = FALSE)[[1]]
+  }
+
+  lapply(seq_len(nrow(x@folders)), function(i) {
+    c(root_segments, x@folders[i, seq_len(x@depths[i])])
+  })
 })
 
 # S4 method show ---------------------------------------------------------------
@@ -196,6 +224,7 @@ setMethod("tail", "pathlist", function(x, n = 6) {
 #' @param pattern patterm matching possible completions
 #' @importFrom utils .DollarNames
 #' @export
+#'
 .DollarNames.pathlist <- function(x, pattern)
 {
   folders <- x@folders
