@@ -14,7 +14,7 @@ pathlist <- setClass("pathlist", slots = c(
   folders = "matrix",
   depths = "integer",
   root = "character",
-  file = "function",
+  basename = "function",
   extension = "function"
 ))
 
@@ -24,25 +24,53 @@ pathlist <- setClass("pathlist", slots = c(
 #' @importFrom kwb.file split_paths remove_common_root to_subdir_matrix
 #' @importFrom kwb.utils getAttribute
 #'
-setMethod("initialize", "pathlist", function(.Object, paths)
+setMethod("initialize", "pathlist", function(
+  .Object, paths = NULL, segments = NULL, dbg = TRUE
+)
 {
-  stopifnot(is.character(paths))
+  if (is.null(paths) && is.null(segments)) stop(
+    "Either 'paths' or 'segments' must be given to the pathlist().",
+    call. = FALSE
+  )
 
-  all_segments <- kwb.file::split_paths(paths)
+  if (! is.null(paths) && ! is.null(segments)) warning(
+    "Both 'paths' and 'segments' are given to pathlist(). Using only ",
+    "'segments'.", call. = FALSE
+  )
 
-  segments <- kwb.file::remove_common_root(all_segments)
+  # If paths are given, check if they are a vector of character, check for
+  # duplicates and split the paths into segments. Otherwise check if segments is
+  # a list of character vectors.
+  segments <- if (is.null(segments)) {
+    stopifnot(is.character(paths))
+    stopifnot(! any(duplicated(paths)))
+    kwb.file::split_paths(paths)
+  } else {
+    stopifnot(is.list(segments), all(sapply(segments), is.character))
+    segments
+  }
 
+  # Remove the common root of all paths
+  segments <- kwb.file::remove_common_root(segments, dbg = dbg)
+
+  # Fill the slots of the object
   .Object@depths <- lengths(segments)
-  .Object@folders <- kwb.file::to_subdir_matrix(segments)
+  .Object@folders <- kwb.file::to_subdir_matrix(segments, dbg = dbg)
   .Object@root <- kwb.utils::getAttribute(segments, "root")
-  .Object@file <- function() {
+
+  # Define function basename()
+  .Object@basename <- function() {
     sapply(seq_along(.Object@depths), function(i) {
       .Object@folders[i, .Object@depths[i]]
     })
   }
+
+  # Define function extension()
   .Object@extension <- function() {
-    kwb.utils::fileExtension(.Object@file())
+    kwb.utils::fileExtension(.Object@basename())
   }
+
+  # Return the object
   .Object
 })
 
