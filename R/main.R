@@ -227,7 +227,7 @@ setMethod("toplevel", "pathlist", function(object) {
 #' @param object object of class pathlist
 #' @export
 setMethod("filename", "pathlist", function(object) {
-  paste_segments(object@folders, object@depths, depth_to_colnum = identity)
+  object@folders[cbind(seq_along(object@depths), object@depths)]
 })
 
 # S4 method [ ------------------------------------------------------------------
