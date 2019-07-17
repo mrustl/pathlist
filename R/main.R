@@ -162,6 +162,38 @@ setMethod("summary", "pathlist", function(object)
   print(sort(table(object@folders[, 1]), decreasing = TRUE))
 })
 
+# Define Generics --------------------------------------------------------------
+setGeneric("folder", function(object) standardGeneric("folder"))
+setGeneric("toplevel", function(object) standardGeneric("toplevel"))
+
+# S4 method folder -------------------------------------------------------------
+
+#' Get the Folder Path of all Folders Below the Top-Level
+#'
+#' @param object object of class pathlist
+#' @export
+setMethod("folder", "pathlist", function(object) {
+  result <- character(length(object@depths))
+  has_folder <- object@depths > 2
+  object_folders <- object[has_folder]
+  object_folders@folders <- object_folders@folders[, -1, drop = FALSE]
+  object_folders@depths <- object_folders@depths - 2L
+  result[has_folder] <- as.character(object_folders)
+  result
+})
+
+# S4 method toplevel -----------------------------------------------------------
+
+#' Get the Top-Level Folders
+#'
+#' @param object object of class pathlist
+#' @export
+setMethod("toplevel", "pathlist", function(object) {
+  result <- character(length(object@depths))
+  has_top_level <- object@depths > 1
+  result[has_top_level] <- object@folders[has_top_level, 1]
+  result
+})
 
 # S4 method [ ------------------------------------------------------------------
 
@@ -238,7 +270,8 @@ setMethod("head", "pathlist", function(x, n = 6) {
 #' @param n number of paths
 #' @export
 #'
-setMethod("tail", "pathlist", function(x, n = 6) {
+setMethod("tail", "pathlist", function(x, n = 6)
+{
   to <- nrow(x@folders)
   from <- max(1, to - n + 1)
   x[from:to]
