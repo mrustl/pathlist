@@ -85,25 +85,36 @@ setMethod("initialize", "pathlist", function(
 #'
 setMethod("as.character", "pathlist", function(x, relative = FALSE)
 {
-  paths <- character(nrow(x@folders))
+  paste_segments(
+    folders = x@folders,
+    depths = x@depths,
+    depth_to_colnum = seq_len,
+    root = if (! relative) x@root
+  )
+})
 
-  for (depth in unique(x@depths)) {
+# paste_segments ---------------------------------------------------------------
+paste_segments <- function(folders, depths, depth_to_colnum, root = NULL)
+{
+  paths <- character(nrow(folders))
 
-    indices <- which(x@depths == depth)
+  for (depth in unique(depths)) {
+
+    indices <- which(depths == depth)
 
     args <- kwb.utils::asColumnList(
-      (x@folders)[indices, seq_len(depth), drop = FALSE]
+      folders[indices, depth_to_colnum(depth), drop = FALSE]
     )
 
-    if (! relative) {
-      args <- c(list(x@root), args)
+    if (! is.null(root)) {
+      args <- c(list(root), args)
     }
 
     paths[indices] <- do.call(paste, c(args, sep = "/"))
   }
 
   paths
-})
+}
 
 # S4 method as.list ------------------------------------------------------------
 
@@ -163,8 +174,22 @@ setMethod("summary", "pathlist", function(object)
 })
 
 # Define Generics --------------------------------------------------------------
+
+#' Get the File Name Only
+#'
+#' @param object object of class pathlist
+#'
 setGeneric("folder", function(object) standardGeneric("folder"))
+
+#' Get the Top-Level Folder
+#'
+#' @param object object of class pathlist
 setGeneric("toplevel", function(object) standardGeneric("toplevel"))
+
+#' Get the File Name Only
+#'
+#' @param object object of class pathlist
+setGeneric("filename", function(object) standardGeneric("filename"))
 
 # S4 method folder -------------------------------------------------------------
 
@@ -178,13 +203,13 @@ setMethod("folder", "pathlist", function(object) {
   object_folders <- object[has_folder]
   object_folders@folders <- object_folders@folders[, -1, drop = FALSE]
   object_folders@depths <- object_folders@depths - 2L
-  result[has_folder] <- as.character(object_folders)
+  result[has_folder] <- as.character(object_folders, relative = TRUE)
   result
 })
 
 # S4 method toplevel -----------------------------------------------------------
 
-#' Get the Top-Level Folders
+#' Get the Top-Level Folder
 #'
 #' @param object object of class pathlist
 #' @export
@@ -193,6 +218,16 @@ setMethod("toplevel", "pathlist", function(object) {
   has_top_level <- object@depths > 1
   result[has_top_level] <- object@folders[has_top_level, 1]
   result
+})
+
+# S4 method filename -----------------------------------------------------------
+
+#' Get the File Name Only
+#'
+#' @param object object of class pathlist
+#' @export
+setMethod("filename", "pathlist", function(object) {
+  paste_segments(object@folders, object@depths, depth_to_colnum = identity)
 })
 
 # S4 method [ ------------------------------------------------------------------
