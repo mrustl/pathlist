@@ -15,7 +15,8 @@ pathlist <- setClass("pathlist", slots = c(
   depths = "integer",
   root = "character",
   basename = "function",
-  extension = "function"
+  extension = "function",
+  data = "data.frame"
 ))
 
 # S4 method initialize ---------------------------------------------------------
@@ -25,7 +26,7 @@ pathlist <- setClass("pathlist", slots = c(
 #' @importFrom kwb.utils getAttribute
 #'
 setMethod("initialize", "pathlist", function(
-  .Object, paths = NULL, segments = NULL, dbg = TRUE
+  .Object, paths = NULL, segments = NULL, data = NULL, dbg = TRUE
 )
 {
   if (is.null(paths) && is.null(segments)) stop(
@@ -37,6 +38,22 @@ setMethod("initialize", "pathlist", function(
     "Both 'paths' and 'segments' are given to pathlist(). Using only ",
     "'segments'.", call. = FALSE
   )
+
+  n_paths <- length(if (is.null(paths)) segments else paths)
+
+  if (! is.null(data) && ! is.data.frame(data)) {
+    stop(call. = FALSE, sprintf(
+      "A data frame must be given in 'data'. You gave something of class '%s'.",
+      class(data)[1]
+    ))
+  }
+
+  if (! is.null(data) && nrow(data) != n_paths) stop(call. = FALSE, sprintf(
+    paste0(
+      "The number of rows in 'data' (%d) must be equal to the length of ",
+      "'%s' (%d)."
+    ), nrow(data), ifelse(is.null(paths), "segments", "paths"), n_paths
+  ))
 
   # If paths are given, check if they are a vector of character, check for
   # duplicates and split the paths into segments. Otherwise check if segments is
@@ -57,6 +74,7 @@ setMethod("initialize", "pathlist", function(
   .Object@depths <- lengths(segments)
   .Object@folders <- kwb.file::to_subdir_matrix(segments, dbg = dbg)
   .Object@root <- kwb.utils::getAttribute(segments, "root")
+  .Object@data <- if (is.null(data)) data.frame() else data
 
   # Define function basename()
   .Object@basename <- function() {
@@ -171,6 +189,11 @@ setMethod("summary", "pathlist", function(object)
 
   cat("# Top-level folders:\n")
   print(sort(table(object@folders[, 1]), decreasing = TRUE))
+
+  if (! is.null(object@data)) {
+    cat("\n# Additional data with columns:\n")
+    cat(paste(names(object@data), collapse = "|"))
+  }
 })
 
 # Define Generics --------------------------------------------------------------
@@ -240,6 +263,7 @@ setMethod("filename", "pathlist", function(object) {
 setMethod("[", "pathlist", function(x, i)
 {
   x@depths <- (x@depths)[i]
+  x@data <- x@data[i, , drop = FALSE]
 
   j <- seq_len(max(x@depths))
 
@@ -270,6 +294,7 @@ setMethod("$", "pathlist", function(x, name)
   valid_depth <- x@depths > 0L
   x@folders <- (x@folders)[valid_depth, -1, drop = FALSE]
   x@depths <- (x@depths)[valid_depth]
+  x@data <- x@data[valid_depth, , drop = FALSE]
   x@root <- paste(x@root, name, sep = "/")
   x
 })
