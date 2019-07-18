@@ -63,7 +63,7 @@ setMethod("initialize", "pathlist", function(
     stopifnot(! any(duplicated(paths)))
     kwb.file::split_paths(paths)
   } else {
-    stopifnot(is.list(segments), all(sapply(segments), is.character))
+    stopifnot(is.list(segments), all(sapply(segments, is.character)))
     segments
   }
 
