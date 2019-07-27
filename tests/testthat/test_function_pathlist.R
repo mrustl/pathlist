@@ -7,4 +7,6 @@ test_that("Initialising a pathlist object works", {
   testthat::expect_identical(pl@folders[, 1], c("abc", "abc", "abc"))
   testthat::expect_identical(pl@folders[, 2], c("", "d", "e"))
   testthat::expect_identical(pl@depths, c(1L, 2L, 2L))
+
+  testthat::expect_identical(as.character(pl[pl@depths > 10]), character())
 })

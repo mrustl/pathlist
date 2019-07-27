@@ -265,9 +265,11 @@ setMethod("[", "pathlist", function(x, i)
   x@depths <- (x@depths)[i]
   x@data <- x@data[i, , drop = FALSE]
 
-  j <- seq_len(max(x@depths))
-
-  x@folders <- (x@folders)[i, j, drop = FALSE]
+  x@folders <- if (length(x@depths)) {
+    x@folders[i, seq_len(max(x@depths)), drop = FALSE]
+  } else {
+    matrix(character())
+  }
 
   x
 })
