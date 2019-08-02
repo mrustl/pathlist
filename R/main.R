@@ -106,7 +106,6 @@ setMethod("as.character", "pathlist", function(x, relative = FALSE)
   paste_segments(
     folders = x@folders,
     depths = x@depths,
-    depth_to_colnum = seq_len,
     root = ifelse(relative, "", x@root)
   )
 })

@@ -9,4 +9,8 @@ test_that("Initialising a pathlist object works", {
   testthat::expect_identical(pl@depths, c(1L, 2L, 2L))
 
   testthat::expect_identical(as.character(pl[pl@depths > 10]), character())
+
+  paths <- c("a1/b1", "a1/b2", "a2/b1", "a2/b1/c1")
+  pl <- pathlist::pathlist(paths)
+  testthat::expect_identical(paths, as.character(pl))
 })
