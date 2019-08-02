@@ -107,28 +107,40 @@ setMethod("as.character", "pathlist", function(x, relative = FALSE)
     folders = x@folders,
     depths = x@depths,
     depth_to_colnum = seq_len,
-    root = if (! relative) x@root
+    root = ifelse(relative, "", x@root)
   )
 })
 
 # paste_segments ---------------------------------------------------------------
-paste_segments <- function(folders, depths, depth_to_colnum, root = NULL)
+paste_segments <- function(folders, depths, root = "")
 {
+  # Initialise result vector
   paths <- character(nrow(folders))
 
+  # Set start argument for paste() if root is given
+  root_arg <- if (nzchar(root)) list(root) else NULL
+
+  # Loop through unique depths
   for (depth in unique(depths)) {
 
+    # Indices of rows in folder matrix corresponding to the current depth
     indices <- which(depths == depth)
 
-    args <- kwb.utils::asColumnList(
-      folders[indices, depth_to_colnum(depth), drop = FALSE]
-    )
+    # Set the result paths
+    paths[indices] <- if (depth == 1L && is.null(root_arg)) {
 
-    if (! is.null(root)) {
-      args <- c(list(root), args)
+      # First segments only if there is no root and if depth is one
+      folders[indices, 1L]
+
+    } else {
+
+      # Prepare argument list for paste(), each element representing one column
+      # of the folder matrix
+      column_args <- lapply(seq_len(depth), function(j) folders[indices, j])
+
+      # Call paste() with argument list, extended by
+      do.call(paste, c(root_arg, column_args, sep = "/"))
     }
-
-    paths[indices] <- do.call(paste, c(args, sep = "/"))
   }
 
   paths
