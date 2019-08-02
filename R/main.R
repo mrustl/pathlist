@@ -14,8 +14,6 @@ pathlist <- setClass("pathlist", slots = c(
   folders = "matrix",
   depths = "integer",
   root = "character",
-  basename = "function",
-  extension = "function",
   data = "data.frame"
 ))
 
@@ -75,18 +73,6 @@ setMethod("initialize", "pathlist", function(
   .Object@folders <- kwb.file::to_subdir_matrix(segments, dbg = dbg)
   .Object@root <- kwb.utils::getAttribute(segments, "root")
   .Object@data <- if (is.null(data)) data.frame() else data
-
-  # Define function basename()
-  .Object@basename <- function() {
-    sapply(seq_along(.Object@depths), function(i) {
-      .Object@folders[i, .Object@depths[i]]
-    })
-  }
-
-  # Define function extension()
-  .Object@extension <- function() {
-    kwb.utils::fileExtension(.Object@basename())
-  }
 
   # Return the object
   .Object
