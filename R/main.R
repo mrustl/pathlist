@@ -151,6 +151,30 @@ setMethod("as.list", "pathlist", function(x, relative = FALSE)
   })
 })
 
+# S4 method as.matrix ----------------------------------------------------------
+
+#' Matrix Representation of a pathlist Object
+#'
+#' @param x a pathlist object
+#' @param relative if \code{TRUE} (the default is \code{FALSE}) the root is
+#'   removed from the paths
+#' @export
+#'
+setMethod("as.matrix", "pathlist", function(x, relative = FALSE)
+{
+  if (relative) {
+    return(x@folders)
+  }
+
+  root_parts <- kwb.file::split_paths(x@root)[[1]]
+
+  n_rows <- nrow(x@folders)
+
+  root_folders <- matrix(rep(root_parts, n_rows), nrow = n_rows, byrow = TRUE)
+
+  cbind(root_folders, x@folders)
+})
+
 # S4 method show ---------------------------------------------------------------
 
 #' Print a pathlist Object
@@ -211,6 +235,11 @@ setGeneric("toplevel", function(object) standardGeneric("toplevel"))
 #' @param object object of class pathlist
 setGeneric("filename", function(object) standardGeneric("filename"))
 
+#' Get the File Path Depths
+#'
+#' @param object object of class pathlist
+setGeneric("depth", function(object) standardGeneric("depth"))
+
 # S4 method folder -------------------------------------------------------------
 
 #' Get the Folder Path of all Folders Below the Top-Level
@@ -248,6 +277,16 @@ setMethod("toplevel", "pathlist", function(object) {
 #' @export
 setMethod("filename", "pathlist", function(object) {
   object@folders[cbind(seq_along(object@depths), object@depths)]
+})
+
+# S4 method depth --------------------------------------------------------------
+
+#' Get the File Path Depths
+#'
+#' @param object object of class pathlist
+#' @export
+setMethod("depth", "pathlist", function(object) {
+  object@depths
 })
 
 # S4 method [ ------------------------------------------------------------------
@@ -294,7 +333,7 @@ setMethod("$", "pathlist", function(x, name)
   x@folders <- (x@folders)[valid_depth, -1, drop = FALSE]
   x@depths <- (x@depths)[valid_depth]
   x@data <- x@data[valid_depth, , drop = FALSE]
-  x@root <- paste(x@root, name, sep = "/")
+  x@root <- if (nzchar(x@root)) paste(x@root, name, sep = "/") else name
   x
 })
 
