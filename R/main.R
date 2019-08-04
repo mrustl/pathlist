@@ -240,6 +240,11 @@ setGeneric("filename", function(object) standardGeneric("filename"))
 #' @param object object of class pathlist
 setGeneric("depth", function(object) standardGeneric("depth"))
 
+#' Hide the Server Name in the Root
+#'
+#' @param object object of class pathlist
+setGeneric("hide_server", function(object) standardGeneric("hide_server"))
+
 # S4 method folder -------------------------------------------------------------
 
 #' Get the Folder Path of all Folders Below the Top-Level
@@ -287,6 +292,17 @@ setMethod("filename", "pathlist", function(object) {
 #' @export
 setMethod("depth", "pathlist", function(object) {
   object@depths
+})
+
+# S4 method hide_server --------------------------------------------------------
+
+#' Hide the Server Name in the Root
+#'
+#' @param object object of class pathlist
+#' @export
+setMethod("hide_server", "pathlist", function(object) {
+  object@root <- hide_server_(object@root)
+  object
 })
 
 # S4 method [ ------------------------------------------------------------------

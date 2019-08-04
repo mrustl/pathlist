@@ -1,7 +1,7 @@
 Package: pathlist
 Type: Package
 Title: Package Supporting the Work with File Paths
-Version: 0.1.0.9000
+Version: 0.2.0
 Author: Hauke Sonnenberg
 Maintainer: Hauke Sonnenberg <hauke.sonnenberg@gmx.de>
 Description: This package implements a S4 class pathlist that internally stores
