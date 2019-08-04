@@ -24,7 +24,8 @@ pathlist <- setClass("pathlist", slots = c(
 #' @importFrom kwb.utils getAttribute
 #'
 setMethod("initialize", "pathlist", function(
-  .Object, paths = NULL, segments = NULL, data = NULL, dbg = TRUE
+  .Object, paths = NULL, segments = NULL, data = NULL, dbg = TRUE,
+  use_fs = FALSE
 )
 {
   if (is.null(paths) && is.null(segments)) stop(
@@ -59,7 +60,7 @@ setMethod("initialize", "pathlist", function(
   segments <- if (is.null(segments)) {
     stopifnot(is.character(paths))
     stopifnot(! any(duplicated(paths)))
-    kwb.file::split_paths(paths)
+    kwb.file::split_paths(paths, use_fs = use_fs)
   } else {
     stopifnot(is.list(segments), all(sapply(segments, is.character)))
     segments
