@@ -60,6 +60,7 @@ setMethod("initialize", "pathlist", function(
   segments <- if (is.null(segments)) {
     stopifnot(is.character(paths))
     stopifnot(! any(duplicated(paths)))
+    paths <- guess_and_set_declared_encodings(paths)
     kwb.file::split_paths(paths, use_fs = use_fs)
   } else {
     stopifnot(is.list(segments), all(sapply(segments, is.character)))
