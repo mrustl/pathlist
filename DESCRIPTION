@@ -1,26 +1,27 @@
-Package: pathlist
 Type: Package
+Package: pathlist
 Title: Package Supporting the Work with File Paths
 Version: 0.2.1
 Author: Hauke Sonnenberg
 Maintainer: Hauke Sonnenberg <hauke.sonnenberg@gmx.de>
-Description: This package implements a S4 class pathlist that internally stores
-    a vector of file paths (as, e.g. received with dir()) as a matrix of 
-    path segments.  I found out that this is the most compact form to store the
-    paths.  The main feature of the class is the dollar function that allows
-    to filter paths for the value of their top-level folder.  Using the dollar
-    operator subsequently you can easily narrow down the list of paths.  The
-    class implements functions length(), head(), tail(), summary(), and show().
+Description: This package implements a S4 class pathlist that internally
+    stores a vector of file paths (as, e.g. received with dir()) as a
+    matrix of path segments.  I found out that this is the most compact
+    form to store the paths.  The main feature of the class is the dollar
+    function that allows to filter paths for the value of their top-level
+    folder.  Using the dollar operator subsequently you can easily narrow
+    down the list of paths.  The class implements functions length(),
+    head(), tail(), summary(), and show().
+License: Apache License 2.0
 Imports: 
     kwb.file,
     kwb.utils,
     methods
+Suggests: 
+    testthat
 Remotes: 
     github::kwb-r/kwb.file,
     github::kwb-r/kwb.utils
-License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
-Suggests: 
-    testthat
