@@ -13,7 +13,7 @@ guess_and_set_declared_encodings(x)
 Guess and Set the Declared Encodings
 }
 \examples{
-Encoding("\\xe4")
-Encoding(guess_and_set_declared_encodings("\\xe4"))
+Encoding("\xe4")
+Encoding(guess_and_set_declared_encodings("\xe4"))
 
 }
