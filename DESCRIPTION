@@ -2,8 +2,12 @@ Type: Package
 Package: pathlist
 Title: Package Supporting the Work with File Paths
 Version: 0.2.1
-Author: Hauke Sonnenberg
-Maintainer: Hauke Sonnenberg <hauke.sonnenberg@gmx.de>
+Authors@R: 
+    person(given = "Hauke",
+           family = "Sonnenberg",
+           role = c("aut", "cre", "cph"),
+           email = "hauke.sonnenberg@gmx.de",
+           comment = c(ORCID = "0000-0001-9134-2871"))
 Description: This package implements a S4 class pathlist that internally
     stores a vector of file paths (as, e.g. received with dir()) as a
     matrix of path segments.  I found out that this is the most compact
@@ -12,7 +16,7 @@ Description: This package implements a S4 class pathlist that internally
     folder.  Using the dollar operator subsequently you can easily narrow
     down the list of paths.  The class implements functions length(),
     head(), tail(), summary(), and show().
-License: Apache License 2.0
+License: MIT + file LICENSE
 Imports: 
     kwb.file,
     kwb.utils,
